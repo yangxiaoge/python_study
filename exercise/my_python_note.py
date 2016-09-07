@@ -154,3 +154,25 @@ print(L2)
 print('方法二')
 L2 = [s.lower() for s in L1 if isinstance(s, str)]
 print(L2)
+
+print('-----------------以下来自: http://www.sololearn.com/Play/Python --------------------------------')
+sqs = [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+print(sqs[1::4])
+
+squares = [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+print(squares[1:-1])
+
+sqs = [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+print(sqs[7:5:-1])
+
+print('List Comprehensions------------------------------------')
+# a list comprehension
+cubes = [i**3 for i in range(5)] # 两个 * 代表 冥次方
+print(cubes)
+nums = [i*2 for i in range(10)] # 一个 * 代表乘号
+print(nums)
+
+# A list comprehension can also contain an if statement to enforce a condition on values in the list.
+# Example:
+evens=[i**2 for i in range(10) if i**2 % 2 == 0]
+print(evens)
