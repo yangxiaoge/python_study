@@ -471,3 +471,113 @@ print(sorted(L,key = by_score))
 http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001431835236741e42daf5af6514f1a8917b8aaadff31bf000
 """
 print('返回函数--------------------')
+def calc_sum(*args):
+    ax = 0
+    for n in args:
+        ax = ax + n
+    return ax
+print('求和:',calc_sum(1,32,4,51))
+
+# 当我们调用lazy_sum()时，返回的并不是求和结果，而是求和函数：
+def lazy_sum(*args):
+    def sum():
+        ax = 0
+        for n in args:
+            ax = ax + n
+        return ax
+    return sum
+f = lazy_sum(1, 3, 5, 7, 9) #当我们调用lazy_sum()时，返回的并不是求和结果，而是求和函数：
+print(f)
+print(f())
+'''
+在这个例子中，我们在函数lazy_sum中又定义了函数sum，并且，内部函数sum可以引用外部函数lazy_sum的参数和局部变量，
+当lazy_sum返回函数sum时，相关参数和变量都保存在返回的函数中，这种称为“闭包（Closure）”的程序结构拥有极大的威力。
+'''
+# 请再注意一点，当我们调用lazy_sum()时，每次调用都会返回一个新的函数，即使传入相同的参数：
+f1 = lazy_sum(1, 3, 5, 7, 9)
+f2 = lazy_sum(1, 3, 5, 7, 9)
+print(f1==f2) # f1()和f2()的调用结果互不影响。
+'''
+返回闭包时牢记的一点就是：返回函数不要引用任何循环变量，或者后续会发生变化的变量。
+'''
+
+# 匿名函数
+"""
+当我们在传入函数时，有些时候，不需要显式地定义函数，直接传入匿名函数更方便。
+在Python中，对匿名函数提供了有限支持。还是以map()函数为例，计算f(x)=x2时，除了定义一个f(x)的函数外，还可以直接传入匿名函数：
+"""
+print('匿名函数--------------------')
+print(list(map(lambda x: x * x, [1, 2, 3, 4, 5, 6, 7, 8, 9])))
+
+'''
+通过对比可以看出，匿名函数 lambda x: x * x 实际上就是：
+def f(x):
+    return x * x
+'''
+# 匿名函数也是一个函数对象，匿名函数也可以赋值给一个变量
+f_lambda = lambda x:x * x
+print(f_lambda(3))
+# 同样，也可以把匿名函数作为返回值返回，比如：
+def build(x, y):
+    return lambda: x * x + y * y
+
+# 装饰器(有点深度)
+"""
+由于函数也是一个对象，而且函数对象可以被赋值给变量，所以，通过变量也能调用该函数。
+http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/0014318435599930270c0381a3b44db991cd6d858064ac0000
+"""
+print('装饰器-------------------------------')
+def now():
+    print('2016-9-13 10:33:37')
+f_now = now
+f_now()
+# 函数对象有一个__name__属性，可以拿到函数的名字：
+print(now.__name__)
+print(f_now.__name__)
+'''
+现在，假设我们要增强now()函数的功能，比如，在函数调用前后自动打印日志，
+但又不希望修改now()函数的定义，这种在代码运行期间动态增加功能的方式，称之为“装饰器”（Decorator）。
+本质上，decorator就是一个返回函数的高阶函数。所以，我们要定义一个能打印日志的decorator，可以定义如下：
+'''
+import functools
+print('2层嵌套的decorator------')
+def log(func):
+    def wrap(*args,**kw):
+        print('call %s():' % func.__name__)
+        return func(*args,**kw)
+    return wrap
+# 观察上面的log，因为它是一个decorator，所以接受一个函数作为参数，并返回一个函数。我们要借助Python的@语法，把decorator置于函数的定义处：
+@log
+def now():
+    print('2016-9-13 10:48:04')
+# 调用now()函数，不仅会运行now()函数本身，还会在运行now()函数前打印一行日志：
+now()
+print('3层嵌套的decorator------')
+def log(text):
+    def decorator(func):
+        def wrapper(*args, **kw):
+            print('%s %s():' % (text, func.__name__))
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+@log('DEBUG')
+def now():
+    print('2016-9-13 11:10:00')
+now()
+
+# 偏函数
+"""
+Python的functools模块提供了很多有用的功能，其中一个就是偏函数（Partial function）。要注意，这里的偏函数和数学意义上的偏函数不一样。
+在介绍函数参数的时候，我们讲到，通过设定参数的默认值，可以降低函数调用的难度。而偏函数也可以做到这一点。举例如下：
+int()函数可以把字符串转换为整数，当仅传入字符串时，int()函数默认按十进制转换：
+"""
+print('偏函数--------------------------------')
+pint = int('13214')
+print(pint)
+# 但int()函数还提供额外的base参数，默认值为10。如果传入base参数，就可以做N进制的转换：
+print(int('12345',base=8)) # 转成八进制
+print(int('12345',16)) # 转成十六进制
+
+# 假设要转换大量的二进制字符串，每次都传入int(x, base=2)非常麻烦，于是，我们想到，可以定义一个int2()的函数，默认把base=2传进去：
+def int2(x,base=2):
+    return int(x,base)
